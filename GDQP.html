@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trắc Nghiệm Tuyển Sinh & Đào Tạo Quân Đội - Công An</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between antialiased">
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+          ⭐
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Tuyển Sinh Quân Đội & Công An</h1>
+          <p class="text-xs text-slate-500">GDQP&AN - Củng cố kiến thức hệ thống nhà trường</p>
+        </div>
+      </div>
+      <div id="badge-score" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700">
+        <span>Tiến độ:</span>
+        <span id="answered-count" class="text-red-600 font-bold">0</span>/10
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-3xl mx-auto w-full px-4 py-6 sm:py-8 flex-1">
+    
+    <!-- Quiz Container -->
+    <div id="quiz-screen" class="space-y-6">
+      <!-- Progress Bar -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 mb-2">
+          <span>Câu hỏi <span id="current-q-index" class="text-red-600 font-bold text-base">1</span>/10</span>
+          <span id="progress-percent" class="text-slate-500">10%</span>
+        </div>
+        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+          <div id="progress-bar" class="bg-gradient-to-r from-red-500 to-amber-500 h-full rounded-full transition-all duration-300 w-[10%]"></div>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="bg-white p-5 sm:p-7 rounded-2xl border border-slate-200 shadow-sm transition-all duration-200">
+        <div class="flex items-start gap-3 mb-5">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-700 font-bold text-sm shrink-0">
+            Q<span id="q-num">1</span>
+          </span>
+          <h2 id="q-text" class="text-base sm:text-lg font-semibold text-slate-900 leading-snug pt-0.5">
+            Đang tải câu hỏi...
+          </h2>
+        </div>
+
+        <!-- Options Container -->
+        <div id="options-container" class="space-y-3">
+          <!-- Dynamic Buttons injected here -->
+        </div>
+
+        <!-- Explanation Box (Appears after answer) -->
+        <div id="explanation-box" class="hidden mt-6 p-4 rounded-xl border text-sm leading-relaxed transition-all">
+          <div class="flex items-center gap-2 font-bold mb-1" id="feedback-title">
+            <!-- Correct / Incorrect text -->
+          </div>
+          <p id="feedback-text" class="text-slate-700"></p>
+        </div>
+      </div>
+
+      <!-- Action Navigation -->
+      <div class="flex justify-between items-center pt-2">
+        <button id="prev-btn" class="px-4 py-2.5 rounded-xl border border-slate-300 font-medium text-sm text-slate-700 hover:bg-slate-100 transition disabled:opacity-40 disabled:hover:bg-transparent" disabled>
+          ← Câu trước
+        </button>
+        <button id="next-btn" class="px-5 py-2.5 rounded-xl bg-red-600 text-white font-medium text-sm shadow hover:bg-red-700 transition disabled:opacity-40" disabled>
+          Câu tiếp →
+        </button>
+      </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="hidden bg-white p-6 sm:p-10 rounded-2xl border border-slate-200 shadow-sm text-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center text-4xl shadow-inner bg-slate-100" id="result-icon">
+        🎯
+      </div>
+      <h2 class="text-2xl font-bold text-slate-900 mb-2">Hoàn Thành Bài Ôn Tập!</h2>
+      <p class="text-slate-600 text-sm mb-6" id="result-subtitle">Bạn đã trả lời đầy đủ 10 câu hỏi.</p>
+
+      <!-- Score Box -->
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8 max-w-sm mx-auto">
+        <span class="text-xs uppercase tracking-wider text-slate-500 font-bold block mb-1">Điểm số đạt được</span>
+        <div class="text-5xl font-extrabold text-red-600">
+          <span id="final-score">0</span><span class="text-2xl text-slate-400 font-normal">/10</span>
+        </div>
+        <p class="text-xs font-semibold mt-3 text-slate-600" id="score-assessment">Kết quả đánh giá</p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button id="restart-btn" class="px-6 py-3 rounded-xl bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition shadow">
+          Làm lại bài trắc nghiệm
+        </button>
+        <button id="review-btn" class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 font-semibold text-sm hover:bg-slate-100 transition">
+          Xem lại đáp án chi tiết
+        </button>
+      </div>
+    </div>
+
+    <!-- Review Section (Inside Result) -->
+    <div id="review-container" class="hidden mt-8 space-y-4">
+      <h3 class="font-bold text-slate-900 text-lg border-b pb-2">Danh sách chi tiết câu hỏi & giải thích:</h3>
+      <div id="review-list" class="space-y-4 text-left"></div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500">
+    Hệ thống tài liệu ôn tập chuẩn SGK Giáo dục Quốc phòng và An ninh
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        question: "Học viện nào dưới đây KHÔNG tuyển sinh thí sinh từ học sinh phổ thông?",
+        options: [
+          "Học viện Hậu cần",
+          "Học viện Khoa học Quân sự",
+          "Học viện Quốc phòng",
+          "Học viện Kỹ thuật Quân sự"
+        ],
+        correct: 2,
+        explanation: "Mục II.1 (Trang 23): Các học viện không tuyển sinh thí sinh từ học sinh phổ thông gồm có: Học viện Quốc phòng, Học viện Lục quân và Học viện Chính trị."
+      },
+      {
+        question: "Độ tuổi quy định đối với thanh niên ngoài quân đội khi đăng kí dự tuyển vào các trường đại học, cao đẳng quân sự là bao nhiêu (tính đến năm dự tuyển)?",
+        options: [
+          "Không quá 20 tuổi",
+          "Không quá 21 tuổi",
+          "Không quá 22 tuổi",
+          "Không quá 23 tuổi"
+        ],
+        correct: 1,
+        explanation: "Mục II.2.a (Trang 24): Thanh niên ngoài quân đội không quá 21 tuổi; quân nhân tại ngũ hoặc đã xuất ngũ và công dân hoàn thành nghĩa vụ CAND không quá 23 tuổi."
+      },
+      {
+        question: "Thí sinh là thanh niên ngoài quân đội mua hồ sơ đăng kí sơ tuyển vào các trường quân đội ở đâu?",
+        options: [
+          "Ban Tuyển sinh quân sự cấp tỉnh",
+          "Ban Tuyển sinh quân sự cấp xã (nơi đăng kí thường trú)",
+          "Ban Tuyển sinh quân sự cấp huyện",
+          "Văn phòng tuyển sinh trực tiếp tại trường muốn xét tuyển"
+        ],
+        correct: 1,
+        explanation: "Mục II.2.a (Trang 25): Thí sinh là thanh niên ngoài quân đội mua hồ sơ đăng kí sơ tuyển tại Ban Tuyển sinh quân sự cấp xã (nơi thí sinh đăng kí hộ khẩu thường trú)."
+      },
+      {
+        question: "Trường Sĩ quan Lục quân 1 (Trường Đại học Trần Quốc Tuấn) tuyển sinh thí sinh có hộ khẩu từ khu vực nào?",
+        options: [
+          "Tuyển sinh thí sinh từ tỉnh Hà Tĩnh trở ra phía bắc",
+          "Tuyển sinh thí sinh từ tỉnh Quảng Trị trở vào phía nam",
+          "Tuyển sinh thí sinh từ thành phố Đà Nẵng trở vào phía nam",
+          "Tuyển sinh thí sinh trên phạm vi toàn quốc"
+        ],
+        correct: 0,
+        explanation: "Mục II.2.b (Trang 26): Trường Sĩ quan Lục quân 1 tuyển thí sinh từ tỉnh Hà Tĩnh trở ra phía bắc; Trường Sĩ quan Lục quân 2 tuyển thí sinh từ tỉnh Quảng Trị trở vào phía nam."
+      },
+      {
+        question: "Trường Sĩ quan Phòng hoá đào tạo sĩ quan chuyên ngành nào?",
+        options: [
+          "Chỉ huy tham mưu Pháo binh",
+          "Chỉ huy Kĩ thuật hoá học",
+          "Kĩ thuật Tăng – Thiết giáp",
+          "Chỉ huy tham mưu Tăng thiết giáp"
+        ],
+        correct: 1,
+        explanation: "Mục II.2.b (Trang 27): Trường Sĩ quan Phòng hoá đào tạo sĩ quan chuyên ngành Chỉ huy Kĩ thuật hoá học."
+      },
+      {
+        question: "Hệ thống nhà trường Công an nhân dân bao gồm những học viện nào sau đây?",
+        options: [
+          "Học viện An ninh nhân dân, Học viện Cảnh sát nhân dân, Học viện Tình báo, Học viện Quốc tế",
+          "Học viện An ninh nhân dân, Học viện Cảnh sát nhân dân, Học viện Chính trị CAND, Học viện Quốc tế, Học viện Kỹ thuật và Công nghệ an ninh",
+          "Học viện Kỹ thuật Quân sự, Học viện An ninh nhân dân, Học viện Cảnh sát nhân dân",
+          "Học viện Biên phòng, Học viện Cảnh sát nhân dân, Học viện Chính trị CAND"
+        ],
+        correct: 1,
+        explanation: "Mục III.1 (Trang 27): Hệ thống học viện CAND bao gồm: HV An ninh nhân dân, HV Cảnh sát nhân dân, HV Chính trị CAND, HV Quốc tế, HV Kỹ thuật và Công nghệ an ninh."
+      },
+      {
+        question: "Độ tuổi quy định đối với thí sinh là người dân tộc thiểu số khi dự tuyển vào các trường Công an nhân dân là bao nhiêu (tính đến năm dự tuyển)?",
+        options: [
+          "Không quá 22 tuổi",
+          "Không quá 23 tuổi",
+          "Không quá 24 tuổi",
+          "Không quá 25 tuổi"
+        ],
+        correct: 3,
+        explanation: "Mục III.2.a (Trang 28): Tiêu chuẩn về độ tuổi: Công dân thường trú nơi đăng kí sơ tuyển không quá 22 tuổi, trường hợp là người dân tộc thiểu số không quá 25 tuổi."
+      },
+      {
+        question: "Trường Đại học An ninh nhân dân và Trường Đại học Cảnh sát nhân dân tuyển sinh thí sinh thuộc địa bàn nào?",
+        options: [
+          "Phía Bắc (từ Quảng Trị trở ra)",
+          "Phía Nam (tính từ thành phố Đà Nẵng trở vào)",
+          "Phía Nam (tính từ Thừa Thiên Huế trở vào)",
+          "Tuyển sinh rộng rãi trên cả nước"
+        ],
+        correct: 1,
+        explanation: "Mục III.2.b (Trang 29): Cả Đại học An ninh nhân dân và Đại học Cảnh sát nhân dân đều tuyển sinh thí sinh phía nam tính từ thành phố Đà Nẵng trở vào."
+      },
+      {
+        question: "Ngành 'Y khoa' trong hệ thống đào tạo đại học của Công an nhân dân do đơn vị nào trực tiếp đào tạo?",
+        options: [
+          "Học viện Quân y",
+          "Học viện Kỹ thuật và Công nghệ an ninh",
+          "Học viện Cảnh sát nhân dân",
+          "Học viện An ninh nhân dân"
+        ],
+        correct: 1,
+        explanation: "Mục III.2.b (Trang 29): Học viện Kỹ thuật và Công nghệ an ninh đào tạo: Kĩ thuật CAND, Trinh sát kĩ thuật, Hậu cần CAND, Kĩ thuật điện tử - viễn thông và Y khoa."
+      },
+      {
+        question: "Phương thức nào dưới đây KHÔNG phải là phương thức tuyển sinh đại học chính quy của các trường Công an nhân dân?",
+        options: [
+          "Tuyển thẳng theo quy chế của Bộ GD&ĐT và quy định của Bộ Công an",
+          "Xét tuyển kết hợp chứng chỉ ngoại ngữ quốc tế với kết quả bài thi đánh giá của Bộ Công an",
+          "Xét tuyển dựa vào học bạ THPT kết hợp phỏng vấn tư duy",
+          "Xét tuyển kết hợp kết quả thi tốt nghiệp THPT với kết quả bài thi đánh giá của Bộ Công an"
+        ],
+        correct: 2,
+        explanation: "Mục III.2.a (Trang 28): Tuyển sinh ĐH chính quy CAND gồm 3 phương thức: Tuyển thẳng; Xét chứng chỉ ngoại ngữ + bài thi đánh giá; Xét điểm thi tốt nghiệp THPT + bài thi đánh giá."
+      }
+    ];
+
+    let currentQuestion = 0;
+    let userAnswers = new Array(quizData.length).fill(null);
+
+    // Elements
+    const qScreen = document.getElementById("quiz-screen");
+    const rScreen = document.getElementById("result-screen");
+    const qNum = document.getElementById("q-num");
+    const currentQIdx = document.getElementById("current-q-index");
+    const qText = document.getElementById("q-text");
+    const optionsContainer = document.getElementById("options-container");
+    const explanationBox = document.getElementById("explanation-box");
+    const feedbackTitle = document.getElementById("feedback-title");
+    const feedbackText = document.getElementById("feedback-text");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const progressBar = document.getElementById("progress-bar");
+    const progressPercent = document.getElementById("progress-percent");
+    const answeredCount = document.getElementById("answered-count");
+
+    function renderQuestion() {
+      const q = quizData[currentQuestion];
+      qNum.textContent = currentQuestion + 1;
+      currentQIdx.textContent = currentQuestion + 1;
+      qText.textContent = q.question;
+
+      // Update progress bar
+      const percent = Math.round(((currentQuestion + 1) / quizData.length) * 100);
+      progressBar.style.width = `${percent}%`;
+      progressPercent.textContent = `${percent}%`;
+
+      // Render options
+      optionsContainer.innerHTML = "";
+      const selectedAnswer = userAnswers[currentQuestion];
+      const isAnswered = selectedAnswer !== null;
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = `w-full text-left p-3.5 sm:p-4 rounded-xl border font-medium text-sm transition-all flex items-start gap-3 `;
+
+        const letter = String.fromCharCode(65 + idx);
+
+        if (!isAnswered) {
+          btn.className += "border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-800 shadow-sm cursor-pointer";
+          btn.onclick = () => handleSelectOption(idx);
+        } else {
+          // Already answered view
+          if (idx === q.correct) {
+            btn.className += "border-emerald-500 bg-emerald-50/80 text-emerald-900 ring-2 ring-emerald-500/20";
+          } else if (idx === selectedAnswer) {
+            btn.className += "border-rose-400 bg-rose-50 text-rose-900 ring-2 ring-rose-400/20";
+          } else {
+            btn.className += "border-slate-200 bg-slate-50 text-slate-400 opacity-60";
+          }
+          btn.disabled = true;
+        }
+
+        btn.innerHTML = `
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-md ${
+            isAnswered && idx === q.correct ? 'bg-emerald-600 text-white font-bold' : 
+            isAnswered && idx === selectedAnswer ? 'bg-rose-500 text-white font-bold' : 
+            'bg-slate-100 text-slate-600 font-semibold'
+          } text-xs shrink-0">${letter}</span>
+          <span class="pt-0.5 leading-relaxed">${opt}</span>
+        `;
+        optionsContainer.appendChild(btn);
+      });
+
+      // Show / hide explanation
+      if (isAnswered) {
+        explanationBox.classList.remove("hidden");
+        const isCorrect = selectedAnswer === q.correct;
+        if (isCorrect) {
+          explanationBox.className = "mt-6 p-4 rounded-xl border text-sm leading-relaxed bg-emerald-50 border-emerald-200 text-emerald-900";
+          feedbackTitle.innerHTML = "✅ Chính xác!";
+        } else {
+          explanationBox.className = "mt-6 p-4 rounded-xl border text-sm leading-relaxed bg-rose-50 border-rose-200 text-rose-900";
+          feedbackTitle.innerHTML = "❌ Chưa chính xác!";
+        }
+        feedbackText.textContent = q.explanation;
+        nextBtn.disabled = false;
+      } else {
+        explanationBox.classList.add("hidden");
+        nextBtn.disabled = true;
+      }
+
+      // Prev / Next button state
+      prevBtn.disabled = currentQuestion === 0;
+      if (currentQuestion === quizData.length - 1) {
+        nextBtn.textContent = "Xem kết quả 🏁";
+      } else {
+        nextBtn.textContent = "Câu tiếp →";
+      }
+
+      // Update answered count
+      const totalAnswered = userAnswers.filter(a => a !== null).length;
+      answeredCount.textContent = totalAnswered;
+    }
+
+    function handleSelectOption(index) {
+      userAnswers[currentQuestion] = index;
+      renderQuestion();
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    });
+
+    function showResults() {
+      qScreen.classList.add("hidden");
+      rScreen.classList.remove("hidden");
+
+      let correctCount = 0;
+      quizData.forEach((q, i) => {
+        if (userAnswers[i] === q.correct) correctCount++;
+      });
+
+      document.getElementById("final-score").textContent = correctCount;
+      const assessment = document.getElementById("score-assessment");
+      const resultIcon = document.getElementById("result-icon");
+
+      if (correctCount === 10) {
+        assessment.textContent = "Xuất sắc! Bạn đã nắm vững 100% kiến thức.";
+        assessment.className = "text-xs font-semibold mt-3 text-emerald-600";
+        resultIcon.textContent = "🏆";
+      } else if (correctCount >= 8) {
+        assessment.textContent = "Rất tốt! Kiến thức tương đối vững chắc.";
+        assessment.className = "text-xs font-semibold mt-3 text-blue-600";
+        resultIcon.textContent = "🌟";
+      } else if (correctCount >= 5) {
+        assessment.textContent = "Khá ổn, nhưng cần xem kĩ các điều kiện đặc thù.";
+        assessment.className = "text-xs font-semibold mt-3 text-amber-600";
+        resultIcon.textContent = "💡";
+      } else {
+        assessment.textContent = "Cần đọc lại tài liệu để củng cố các thông tin chi tiết.";
+        assessment.className = "text-xs font-semibold mt-3 text-rose-600";
+        resultIcon.textContent = "📚";
+      }
+    }
+
+    // Restart
+    document.getElementById("restart-btn").addEventListener("click", () => {
+      userAnswers = new Array(quizData.length).fill(null);
+      currentQuestion = 0;
+      document.getElementById("review-container").classList.add("hidden");
+      rScreen.classList.add("hidden");
+      qScreen.classList.remove("hidden");
+      renderQuestion();
+    });
+
+    // Review all
+    document.getElementById("review-btn").addEventListener("click", () => {
+      const reviewContainer = document.getElementById("review-container");
+      const reviewList = document.getElementById("review-list");
+      reviewContainer.classList.remove("hidden");
+      reviewList.innerHTML = "";
+
+      quizData.forEach((q, idx) => {
+        const isRight = userAnswers[idx] === q.correct;
+        const item = document.createElement("div");
+        item.className = `p-4 rounded-xl border ${isRight ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/50'}`;
+        item.innerHTML = `
+          <div class="font-bold text-sm text-slate-900 mb-1">
+            Câu ${idx + 1}: ${q.question}
+          </div>
+          <p class="text-xs ${isRight ? 'text-emerald-700 font-semibold' : 'text-rose-700 font-semibold'}">
+            Lựa chọn của bạn: ${userAnswers[idx] !== null ? q.options[userAnswers[idx]] : 'Chưa chọn'}
+          </p>
+          ${!isRight ? `<p class="text-xs text-emerald-800 font-semibold mt-0.5">Đáp án đúng: ${q.options[q.correct]}</p>` : ''}
+          <p class="text-xs text-slate-600 mt-2 bg-white/70 p-2 rounded-lg border border-slate-200">
+            <strong>Căn cứ:</strong> ${q.explanation}
+          </p>
+        `;
+        reviewList.appendChild(item);
+      });
+
+      reviewContainer.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Initialize
+    renderQuestion();
+  </script>
+</body>
+</html>
